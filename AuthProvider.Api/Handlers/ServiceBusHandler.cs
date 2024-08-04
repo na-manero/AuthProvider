@@ -14,11 +14,11 @@ public class ServiceBusHandler
         _serviceBusClient = serviceBusClient;
     }
 
-    public async Task SendUserCreatedMessageAsync(SignUp user)
+    public async Task SendMessageAsync<T>(string queueName, T messageContent)
     {
-        var sender = _serviceBusClient.CreateSender("newuser-queue");
+        var sender = _serviceBusClient.CreateSender(queueName);
 
-        var message = new ServiceBusMessage(JsonSerializer.Serialize(new { user.Email, user.FirstName, user.LastName }));
+        var message = new ServiceBusMessage(JsonSerializer.Serialize(messageContent));
         try
         {
             await sender.SendMessageAsync(message);

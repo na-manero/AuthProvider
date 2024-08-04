@@ -32,7 +32,8 @@ public class SignUpController(UserManager<UserEntity> userManager, ServiceBusHan
 
             if (result.Succeeded)
             {
-                await _sb.SendUserCreatedMessageAsync(model);
+                var userCreatedMessage = new { model.Email, model.FirstName, model.LastName };
+                await _sb.SendMessageAsync("newuser-queue", userCreatedMessage);
 
                 return Ok();
             }

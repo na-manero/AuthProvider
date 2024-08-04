@@ -6,7 +6,7 @@ namespace AuthProvider.Api.Controllers;
 
 [Route("api/auth/signin")]
 [ApiController]
-public class SignInController(SignInManager<IdentityUser> signInManager) : Controller
+public class SignInController(SignInManager<IdentityUser> signInManager) : ControllerBase
 {
     private readonly SignInManager<IdentityUser> _signInManager = signInManager;
 

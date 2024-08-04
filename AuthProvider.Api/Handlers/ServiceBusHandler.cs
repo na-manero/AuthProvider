@@ -5,14 +5,9 @@ using System.Text.Json;
 
 namespace AuthProvider.Api.Handlers;
 
-public class ServiceBusHandler
+public class ServiceBusHandler(ServiceBusClient serviceBusClient)
 {
-    private readonly ServiceBusClient _serviceBusClient;
-
-    public ServiceBusHandler(ServiceBusClient serviceBusClient)
-    {
-        _serviceBusClient = serviceBusClient;
-    }
+    private readonly ServiceBusClient _serviceBusClient = serviceBusClient;
 
     public async Task SendMessageAsync<T>(string queueName, T messageContent)
     {

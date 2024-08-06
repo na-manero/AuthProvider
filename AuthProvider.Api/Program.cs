@@ -13,8 +13,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // Use connection strings from appsettings.json if in development, otherwise from environment variables
-var sqlConnectionString = builder.Configuration.GetConnectionString("SqlServer") ?? Environment.GetEnvironmentVariable("SqlServer_ConnectionString");
-var sbConnectionString = builder.Configuration.GetConnectionString("ServiceBus") ?? Environment.GetEnvironmentVariable("ServiceBus_ConnectionString");
+var sqlConnectionString = builder.Environment.IsDevelopment() ? builder.Configuration.GetConnectionString("SqlServer") : Environment.GetEnvironmentVariable("SqlServer_ConnectionString");
+var sbConnectionString = builder.Environment.IsDevelopment() ? builder.Configuration.GetConnectionString("ServiceBus") : Environment.GetEnvironmentVariable("ServiceBus_ConnectionString");
 
 builder.Services.AddDbContext<DataContext>(o => o.UseSqlServer(sqlConnectionString));
 
@@ -32,7 +32,6 @@ builder.Services.AddSingleton(sp =>
 builder.Services.AddScoped<ServiceBusHandler>();
 
 builder.Services.AddHttpClient();
-
 
 var app = builder.Build();
 

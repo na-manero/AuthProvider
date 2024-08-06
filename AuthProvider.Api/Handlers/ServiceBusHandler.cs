@@ -11,11 +11,10 @@ public class ServiceBusHandler(ServiceBusClient serviceBusClient)
 
     public async Task SendMessageAsync<T>(string queueName, T messageContent)
     {
-        var sender = _serviceBusClient.CreateSender(queueName);
-
-        var message = new ServiceBusMessage(JsonSerializer.Serialize(messageContent));
         try
         {
+            var sender = _serviceBusClient.CreateSender(queueName);
+            var message = new ServiceBusMessage(JsonSerializer.Serialize(messageContent));
             await sender.SendMessageAsync(message);
         }
         catch (Exception ex)

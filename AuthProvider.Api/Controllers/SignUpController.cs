@@ -4,10 +4,11 @@ using AuthProvider.Data.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
 
 namespace AuthProvider.Api.Controllers;
 
-[Route("api/auth/signup")]
+[Route("api/auth/[controller]")]
 [ApiController]
 public class SignUpController(UserManager<UserEntity> userManager, ServiceBusHandler sb) : ControllerBase
 {
@@ -20,28 +21,33 @@ public class SignUpController(UserManager<UserEntity> userManager, ServiceBusHan
         if (!ModelState.IsValid)
             return BadRequest();
 
-        if (!await _userManager.Users.AnyAsync(x => x.Email == model.Email))
-        {
-            var user = new UserEntity
+        try 
+        { 
+            if (!await _userManager.Users.AnyAsync(x => x.Email == model.Email))
             {
-                UserName = model.Email,
-                Email = model.Email,
-            };
+                var user = new UserEntity
+                {
+                    UserName = model.Email,
+                    Email = model.Email,
+                };
 
-            var result = await _userManager.CreateAsync(user, model.Password);
+                var result = await _userManager.CreateAsync(user, model.Password);
 
-            if (result.Succeeded)
-            {
-                var userCreatedMessage = new { model.Email, model.FirstName, model.LastName };
-                await _sb.SendMessageAsync("newuser-queue", userCreatedMessage);
+                if (result.Succeeded)
+                {
+                    var userCreatedMessage = new { model.Email, model.FirstName, model.LastName };
+                    await _sb.SendMessageAsync("newuser-queue", userCreatedMessage);
 
-                return Ok();
+                    return Ok();
+                }
             }
-            else
-                return Conflict();
 
+            return Conflict();
         }
-          
-        return BadRequest();
+        catch (Exception ex) 
+        {
+            Debug.WriteLine($"An error occurred: {ex.Message}");
+            return StatusCode(500, "An internal server error occurred.");
+        }
     }
 }
